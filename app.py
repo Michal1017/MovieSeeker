@@ -11,10 +11,27 @@ def main(page: ft.Page):
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.update()
 
-    title = ft.Text("MovieSeeker", size=80, text_align=ft.TextAlign.CENTER, color=ft.colors.BLUE_700, 
-                        weight=ft.FontWeight.BOLD)
+    title = ft.Text(
+                "MovieSeeker",
+                size=80,
+                text_align=ft.TextAlign.CENTER,
+                color=ft.colors.BLUE_700, 
+                weight=ft.FontWeight.BOLD
+                )
 
-    page.add(ft.Column([ft.Row([title],alignment=ft.MainAxisAlignment.CENTER), ft.Row([mostPopularFilmsTab.build()],alignment=ft.MainAxisAlignment.CENTER)], expand=True))
+    page.add(ft.Column(
+                [
+                    ft.Row(
+                        [title],
+                        alignment=ft.MainAxisAlignment.CENTER
+                    ),
+                    ft.Row(
+                        [mostPopularFilmsTab.build()],
+                        alignment=ft.MainAxisAlignment.CENTER
+                    )
+                ],
+                expand=True)
+            )
 
     page.update()
 
