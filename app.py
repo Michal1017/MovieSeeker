@@ -1,8 +1,8 @@
 import flet as ft
-import API_calls
-import Most_Popular_Films_Tab as MPFT
+import templates
+import apicalls
 
-mostPopularFilmsTab = MPFT.MostPopularFilmsTab()
+mostPopularFilmsTab = templates.ScrollingTab(apicalls.GetMostPopularFilmsList(), "Most Popular Films")
 
 def main(page: ft.Page):
     page.title = "MovieSeeker"
