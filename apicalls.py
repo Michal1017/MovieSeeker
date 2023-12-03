@@ -14,6 +14,12 @@ def GetMostPopularFilmsList():
     req = requests.get(url+apiKey).json()
     results = req['results']
     filmList.extend(results)
-    resultList = pd.DataFrame(filmList)[['title', 'poster_path', 'vote_average']]
+    resultList = pd.DataFrame(filmList)[['title', 'poster_path', 'vote_average','id']]
     resultList['poster_path'] = 'https://image.tmdb.org/t/p/w500' + resultList['poster_path']
     return resultList
+
+def GetSpecificMovie(id):
+    apiKey = GetApiKey('C:/Users/micha/.secret/tMDb_API.txt')
+    url = 'https://api.themoviedb.org/3/movie/'+str(id)+"?api_key="
+    req = requests.get(url+apiKey).json()
+    return req

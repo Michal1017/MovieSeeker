@@ -18,7 +18,13 @@ class ScrollingTab():
         
         self.filmList = apiCall
 
-    def build(self):
+    def on_button_click(self, page, row, movieId):
+        movieId.clear()
+        movieId.append(row["id"])
+        page.go("/filmInfo")
+
+    def build(self, page, movieId):
+        self.elements.controls.clear()
         for i, row in self.filmList.iterrows():
             self.elements.controls.append(
                 ft.TextButton(
@@ -49,6 +55,7 @@ class ScrollingTab():
                     ),
                     tooltip=row["title"],
                     style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=20)),
+                    on_click=lambda _, row=row: self.on_button_click(page, row, movieId),
                 )
             )
         
