@@ -2,7 +2,8 @@ import flet as ft
 import templates
 import apicalls
 
-mostPopularFilmsTab = templates.ScrollingTab(apicalls.GetMostPopularFilmsList(), "Most Popular Films")
+mostPopularFilmsTab = templates.ScrollingTab(apicalls.GetMostPopularFilmsList(),
+                                             "Most Popular Films")
 
 def main(page: ft.Page):
     movieId = []
@@ -43,12 +44,19 @@ def main(page: ft.Page):
             )
         )
         if page.route == "/filmInfo":
+            movieInfo=apicalls.GetSpecificMovie(movieId[0])
+            movieInfoPage = templates.MovieInfoPage(movieInfo)
             page.views.append(
                 ft.View(
                     "/filmInfo",
                     [
-                        ft.AppBar(title=ft.Text(movieId[0]), bgcolor=ft.colors.SURFACE_VARIANT),
-                        ft.Text(movieId[0]),
+                        ft.AppBar(title=ft.Text(
+                                            movieInfo['title'],
+                                            size=20
+                                        ),
+                                            bgcolor=ft.colors.SURFACE_VARIANT
+                        ),
+                        movieInfoPage.build()
                     ],
                 )
             )

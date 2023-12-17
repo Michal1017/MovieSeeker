@@ -70,3 +70,79 @@ class ScrollingTab():
                 )
 
         return result
+    
+    # class which creates tab with information about specific movie
+class MovieInfoPage():
+
+    def __init__(self,movieInfo):
+        self.title = ft.Text(
+            movieInfo['title'],
+            size=50,
+            color=ft.colors.BLUE_100,
+            weight=ft.FontWeight.BOLD,
+        )
+        self.genres = ft.Row()
+        for genre in movieInfo['genres']:
+            self.genres.controls.append(
+                ft.Text(
+                    genre['name'],
+                    size=20,italic=True
+                )
+            )
+        self.overview = ft.Text(
+                            movieInfo['overview'],
+                            size=18,
+                            width=600
+                        )
+        self.poster_path = movieInfo['poster_path']
+        self.release_date = ft.Text(
+                                'Release year: ' + movieInfo['release_date'][0:4],
+                                size=20
+                            )
+        self.runtime = ft.Text(
+                            'Run time: ' + str(movieInfo['runtime']) + ' min',
+                            size=20
+                        )
+        self.vote_average = ft.Container(
+            content=ft.Text(
+                        str(round(movieInfo['vote_average'],2)) + '/10',
+                        size=30,
+            ),
+            bgcolor=ft.colors.BLUE_700,
+            padding=ft.padding.all(10),
+            border_radius=10,
+            margin=10, 
+        )
+
+    def build(self):
+        self.description = ft.Column(
+            [
+                self.title,
+                self.vote_average,
+                self.genres,
+                self.overview,
+                self.release_date,
+                self.runtime,
+            ],
+            width=800,
+            height=600,
+            scroll=ft.ScrollMode.AUTO,
+        )
+        
+        result = ft.Row([
+            ft.Image(
+                src = self.poster_path,
+                width = 400,
+                height = 600,
+                fit = ft.ImageFit.FILL,
+                repeat = ft.ImageRepeat.NO_REPEAT,
+                border_radius = ft.border_radius.all(20),
+            ),
+            self.description,
+        ],
+        width= 1200,
+        height= 600,
+        spacing=50,
+        )
+
+        return ft.Column([result],expand=True)

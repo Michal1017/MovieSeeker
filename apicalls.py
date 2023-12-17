@@ -22,4 +22,5 @@ def GetSpecificMovie(id):
     apiKey = GetApiKey('C:/Users/micha/.secret/tMDb_API.txt')
     url = 'https://api.themoviedb.org/3/movie/'+str(id)+"?api_key="
     req = requests.get(url+apiKey).json()
+    req['poster_path'] = 'https://image.tmdb.org/t/p/w500' + req['poster_path']
     return req
