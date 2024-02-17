@@ -24,3 +24,21 @@ def GetSpecificMovie(id):
     req = requests.get(url+apiKey).json()
     req['poster_path'] = 'https://image.tmdb.org/t/p/w500' + req['poster_path']
     return req
+
+def MovieListByTitle(title):
+    apiKey = GetApiKey('C:/Users/micha/.secret/tMDb_API.txt')
+    url = 'https://api.themoviedb.org/3/search/movie?api_key='+apiKey+"&query="+title
+    req = requests.get(url).json()
+    results = req['results']
+    filmList = []
+    filmList.extend(results)
+    resultList = pd.DataFrame()
+    if not filmList:
+        return resultList
+    resultList[['title', 'poster_path', 'release_date', 'id']] = pd.DataFrame(filmList)[['title', 'poster_path', 'release_date', 'id']]
+    resultList['release_date'] = resultList['release_date'].str[:4]
+    resultList['poster_path'] = 'https://image.tmdb.org/t/p/w500' + resultList['poster_path']
+    return resultList
+
+
+

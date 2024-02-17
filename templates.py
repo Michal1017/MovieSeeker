@@ -39,7 +39,7 @@ class ScrollingTab():
                                     border_radius = ft.border_radius.all(10),
                                 ),
                                 ft.Text(
-                                    'Rating: '+str(row['vote_average'])+'/10',
+                                    'Rating: '+str(round(row['vote_average'],1))+'/10',
                                     size=14
                                 ),
                                 ft.Text(
@@ -146,3 +146,100 @@ class MovieInfoPage():
         )
 
         return ft.Column([result],expand=True)
+
+class SearchTab():
+    def __init__(self, ):
+        pass
+
+    def on_button_click(self, page, movieTitleInput, movieTitle):
+        movieTitle.clear()
+        movieTitle.append(movieTitleInput.value)
+        page.go("/foundMovies")
+
+    def build(self, page, movieTitle):
+        searchTextField = ft.TextField(label="Movie title",
+                            hint_text="Please, enter movie title",
+                            width=600,
+                            border_color=ft.colors.BLUE_100
+                )
+        
+        sumbitButton = ft.ElevatedButton(text="Search",
+                                         icon="search",
+                                         on_click=lambda _: self.on_button_click(page, searchTextField, movieTitle),
+                            )
+
+        result = ft.Row(
+                            [searchTextField,
+                             sumbitButton],
+                            alignment=ft.MainAxisAlignment.CENTER,
+                        )
+
+        return result
+    
+class SearchResult():
+    def __init__(self, movieList):
+        self.title = ft.Text(
+                            'Search Result',
+                            size=30,
+                            color=ft.colors.BLUE_200
+                            )
+        
+        self.elements = ft.Column(
+                           expand=1,
+                           scroll=ft.ScrollMode.AUTO,
+                           spacing=10
+                          )
+        
+        self.movieList = movieList
+
+    def on_button_click(self, page, row, movieId):
+        movieId.clear()
+        movieId.append(row["id"])
+        page.go("/filmInfo")
+
+    def build(self, page, movieId):
+        self.elements.controls.clear()
+        for i, row in self.movieList.iterrows():
+            self.elements.controls.append(
+                ft.TextButton(
+                    content=ft.Row(
+                            [
+                                ft.Image(
+                                    src = row['poster_path'],
+                                    width = 100,
+                                    height = 100,
+                                    fit = ft.ImageFit.FILL,
+                                    repeat = ft.ImageRepeat.NO_REPEAT,
+                                    border_radius = ft.border_radius.all(10),
+                                ),
+                                ft.Text(
+                                    row["title"], 
+                                    size=18, 
+                                    color=ft.colors.BLUE_100, 
+                                    weight=ft.FontWeight.BOLD,
+                                    width=600,
+                                    overflow=ft.TextOverflow.ELLIPSIS
+                                ),
+                                ft.Text(
+                                    row['release_date'],
+                                    size=14
+                                ),
+                            ],
+                            alignment=ft.MainAxisAlignment.CENTER
+                    ),
+                    tooltip=row["title"],
+                    on_click=lambda _, row=row: self.on_button_click(page, row, movieId),
+                )
+            )
+        
+        result = ft.Column(
+                    [
+                        self.title,
+                        self.elements
+                    ],
+                    width=1160,
+                    height=600,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER
+                )
+
+        return result

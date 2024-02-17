@@ -4,9 +4,12 @@ import apicalls
 
 mostPopularFilmsTab = templates.ScrollingTab(apicalls.GetMostPopularFilmsList(),
                                              "Most Popular Films")
+searchTab = templates.SearchTab()
+
 
 def main(page: ft.Page):
     movieId = []
+    movieTitle = []
     page.title = "MovieSeeker"
     page.theme_mode = ft.ThemeMode.DARK
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
@@ -34,6 +37,7 @@ def main(page: ft.Page):
                             [title],
                             alignment=ft.MainAxisAlignment.CENTER,
                         ),
+                        searchTab.build(page, movieTitle),
                         ft.Row(
                             [mostPopularFilmsTab.build(page, movieId)],
                             alignment=ft.MainAxisAlignment.CENTER,
@@ -60,6 +64,39 @@ def main(page: ft.Page):
                     ],
                 )
             )
+        if page.route == "/foundMovies":
+            movieList = apicalls.MovieListByTitle(movieTitle[0])
+            if(movieList.empty):
+                page.views.append(
+                    ft.View(
+                        "/foundMovies",
+                        [
+                            ft.AppBar(title=ft.Text(
+                                                "Results",
+                                                size=20
+                                            ),
+                                                bgcolor=ft.colors.SURFACE_VARIANT
+                            ),
+                            ft.Text('No results')
+                        ],
+                    )
+                )
+            else:
+                searchResult = templates.SearchResult(movieList)
+                page.views.append(
+                    ft.View(
+                        "/foundMovies",
+                        [
+                            ft.AppBar(title=ft.Text(
+                                                "Results",
+                                                size=20
+                                            ),
+                                                bgcolor=ft.colors.SURFACE_VARIANT
+                            ),
+                            searchResult.build(page, movieId)
+                        ],
+                    )
+                )
         page.update()
 
     def view_pop(view):
