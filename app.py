@@ -41,9 +41,10 @@ def main(page: ft.Page):
                         ft.Row(
                             [mostPopularFilmsTab.build(page, movieId)],
                             alignment=ft.MainAxisAlignment.CENTER,
-                        )
+                        ),
                     ],
-                expand=True)
+                expand=True,
+                )
                 ],
             )
         )
