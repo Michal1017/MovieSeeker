@@ -1,5 +1,7 @@
+import json
 import requests
 import pandas as pd
+import os
 
 def GetApiKey(path):
     f = open(path, 'r')
@@ -40,5 +42,30 @@ def MovieListByTitle(title):
     resultList['poster_path'] = 'https://image.tmdb.org/t/p/w500' + resultList['poster_path']
     return resultList
 
+def GetFilmList():
+    apiKey = GetApiKey('C:/Users/micha/.secret/tMDb_API.txt')
 
+    finallist = []
+    n = 0
+    while n < 500:
+        n += 1
+        url = 'https://api.themoviedb.org/3/discover/movie?&sort_by=popularity.desc&offset=20&page={}&api_key='.format(n)
+        req = requests.get(url+apiKey).json()
+        results = req['results']
+        finallist.extend(results)
 
+    with open("film_data.json", "w") as file:
+        json.dump(finallist, file)
+
+def GetFilmsFromJson():
+    if os.path.exists("film_data.json"):
+        with open("film_data.json", "r") as file:
+            films = json.load(file)
+    else:
+        GetFilmList()
+        with open("film_data.json", "r") as file:
+            films = json.load(file)
+
+    films = pd.DataFrame(films)[['title','adult','genre_ids','id','original_language','overview','popularity','poster_path','release_date','vote_average','vote_count']]
+
+    print(films.columns)

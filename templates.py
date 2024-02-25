@@ -114,6 +114,11 @@ class MovieInfoPage():
             margin=10, 
         )
 
+        self.similar_movies_title = ft.Text(
+                                        "Similar movies",
+                                        size=40
+        )
+
     def build(self):
         self.description = ft.Column(
             [
@@ -129,7 +134,7 @@ class MovieInfoPage():
             scroll=ft.ScrollMode.AUTO,
         )
         
-        result = ft.Row([
+        film_info = ft.Row([
             ft.Image(
                 src = self.poster_path,
                 width = 400,
@@ -145,7 +150,14 @@ class MovieInfoPage():
         spacing=50,
         )
 
-        return ft.Column([result],expand=True)
+        info_page = ft.Column(
+                    [film_info,
+                     self.similar_movies_title],
+                     expand=True,
+                     scroll=ft.ScrollMode.AUTO,
+                     )
+
+        return info_page
 
 class SearchTab():
     def __init__(self, ):
