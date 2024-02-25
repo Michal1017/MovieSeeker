@@ -69,3 +69,16 @@ def GetFilmsFromJson():
     films = pd.DataFrame(films)[['title','adult','genre_ids','id','original_language','overview','popularity','poster_path','release_date','vote_average','vote_count']]
 
     print(films.columns)
+
+def GetMovieGenres():
+    apiKey = GetApiKey('C:/Users/micha/.secret/tMDb_API.txt')
+    url = "https://api.themoviedb.org/3/genre/movie/list?language=en&api_key="
+    req = requests.get(url+apiKey).json()
+    results = req['genres']
+    genresDict = {}
+    for el in results:
+        genresDict[el['id']] = el['name']
+    
+    print(genresDict[36])
+
+GetMovieGenres()
