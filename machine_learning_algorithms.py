@@ -10,29 +10,29 @@ import warnings
 warnings.filterwarnings("ignore")
 
 def RecommendSimilarMovies(index):
-    filmList = apicalls.GetFilmsFromJson()
+    movieList = apicalls.GetMoviesFromJson(False)
 
-    filmList = filmList.drop_duplicates(subset=['title', 'release_date'])
+    movieList = movieList.drop_duplicates(subset=['title', 'release_date'])
 
-    filmList['release_year'] = filmList['release_date'].str.extract(
+    movieList['release_year'] = movieList['release_date'].str.extract(
     r'([0-9]{4})', expand=True).astype(float)
 
-    filmList.dropna(inplace=True)
+    movieList.dropna(inplace=True)
 
-    filmList['release_year'] = filmList['release_year'].astype(int)
+    movieList['release_year'] = movieList['release_year'].astype(int)
 
     genresDict = apicalls.GetMovieGenres()
 
-    filmList['genres'] = filmList['genre_ids'].apply(lambda x: ' '.join([genresDict[i] for i in x]))
+    movieList['genres'] = movieList['genre_ids'].apply(lambda x: ' '.join([genresDict[i] for i in x]))
 
-    filmList['mixed_data'] = filmList["genres"] + " " + filmList["original_language"] + \
-                             filmList["overview"]
+    movieList['mixed_data'] = movieList["genres"] + " " + movieList["original_language"] + \
+                             movieList["overview"]
     
-    filmList = filmList.reset_index()
-    indices = pd.Series(filmList.index, index=filmList['id'])
+    movieList = movieList.reset_index()
+    indices = pd.Series(movieList.index, index=movieList['id'])
 
     count = CountVectorizer(stop_words='english')
-    count_matrix = count.fit_transform(filmList['mixed_data'])
+    count_matrix = count.fit_transform(movieList['mixed_data'])
 
     cosine_sim = cosine_similarity(count_matrix, count_matrix)
 
@@ -44,22 +44,22 @@ def RecommendSimilarMovies(index):
 
     similarities = similarities[1:31]
 
-    filmList['vote_count_norm'] = MinMaxScaler().fit_transform(
-        np.array(filmList['vote_count']).reshape(-1, 1))
-    filmList['popularity_norm'] = MinMaxScaler().fit_transform(
-        np.array(filmList['popularity']).reshape(-1, 1))
-    filmList['vote_average_norm'] = MinMaxScaler().fit_transform(
-        np.array(filmList['vote_average']).reshape(-1, 1))
-    filmList['release_year_norm'] = MinMaxScaler().fit_transform(
-        np.array(filmList['release_year']).reshape(-1, 1))
+    movieList['vote_count_norm'] = MinMaxScaler().fit_transform(
+        np.array(movieList['vote_count']).reshape(-1, 1))
+    movieList['popularity_norm'] = MinMaxScaler().fit_transform(
+        np.array(movieList['popularity']).reshape(-1, 1))
+    movieList['vote_average_norm'] = MinMaxScaler().fit_transform(
+        np.array(movieList['vote_average']).reshape(-1, 1))
+    movieList['release_year_norm'] = MinMaxScaler().fit_transform(
+        np.array(movieList['release_year']).reshape(-1, 1))
     
     recommend_movie_indices = [i[0] for i in similarities]
 
     euclidian_distance = []
     for i in recommend_movie_indices:
-        distance = sqrt((filmList['vote_count_norm'][index_of_movie]-filmList['vote_count_norm'][i])**2+(filmList['popularity_norm'][index_of_movie] -
-                        filmList['popularity_norm'][i])**2+(filmList['vote_average_norm'][index_of_movie]-filmList['vote_average_norm'][i])**2 + 
-                        (filmList['release_year_norm'][index_of_movie]-filmList['release_year_norm'][i])**2)
+        distance = sqrt((movieList['vote_count_norm'][index_of_movie]-movieList['vote_count_norm'][i])**2+(movieList['popularity_norm'][index_of_movie] -
+                        movieList['popularity_norm'][i])**2+(movieList['vote_average_norm'][index_of_movie]-movieList['vote_average_norm'][i])**2 + 
+                        (movieList['release_year_norm'][index_of_movie]-movieList['release_year_norm'][i])**2)
         euclidian_distance.append((i, distance))
 
     euclidian_distance = sorted(euclidian_distance, key=lambda x: x[1])
@@ -70,9 +70,11 @@ def RecommendSimilarMovies(index):
     # get indices of most similiar movies
     recommend_movie_indices = [i[0] for i in euclidian_distance]
 
-    recommend_movie = filmList.iloc[recommend_movie_indices]
+    recommend_movie = movieList.iloc[recommend_movie_indices]
 
     resultList = pd.DataFrame(recommend_movie)[['title', 'poster_path', 'vote_average','id']]
+
+    resultList['poster_path'] = 'https://image.tmdb.org/t/p/w500' + resultList['poster_path']
 
     return resultList
 

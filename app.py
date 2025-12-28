@@ -2,10 +2,11 @@ import flet as ft
 import templates
 import apicalls
 
-mostPopularFilmsTab = templates.ScrollingTab(apicalls.GetMostPopularFilmsList(),
-                                             "Most Popular Films")
+mostPopularMoviesTab = templates.ScrollingTab(apicalls.GetMostPopularMoviesList(),
+                                             "Most Popular Movies")
 searchTab = templates.SearchTab()
 
+apicalls.GetMoviesFromJson(True)
 
 def main(page: ft.Page):
     movieId = []
@@ -39,7 +40,7 @@ def main(page: ft.Page):
                         ),
                         searchTab.build(page, movieTitle),
                         ft.Row(
-                            [mostPopularFilmsTab.build(page, movieId)],
+                            [mostPopularMoviesTab.build(page, movieId)],
                             alignment=ft.MainAxisAlignment.CENTER,
                         ),
                     ],
@@ -48,12 +49,12 @@ def main(page: ft.Page):
                 ],
             )
         )
-        if page.route == "/filmInfo":
+        if page.route == "/movieInfo":
             movieInfo=apicalls.GetSpecificMovie(movieId[0])
             movieInfoPage = templates.MovieInfoPage(movieInfo)
             page.views.append(
                 ft.View(
-                    "/filmInfo",
+                    "/movieInfo",
                     [
                         ft.AppBar(title=ft.Text(
                                             movieInfo['title'],

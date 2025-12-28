@@ -1,7 +1,7 @@
 import flet as ft
 import apicalls
 import machine_learning_algorithms
-# class which creates tab with actually most popular films
+# class which creates tab with actually most popular movies
 class ScrollingTab():
     
     def __init__(self, apiCall, title):
@@ -17,16 +17,31 @@ class ScrollingTab():
                            spacing=10
                           )
         
-        self.filmList = apiCall
+        self.movieList = apiCall
 
-    def on_button_click(self, page, row, movieId):
+    def on_button_click(self, page, row, movieId, isInMovieInfoPage):
         movieId.clear()
         movieId.append(row["id"])
-        page.go("/filmInfo")
+        if(isInMovieInfoPage):
+            movieInfo=apicalls.GetSpecificMovie(movieId[0])
+            movieInfoPage = page.views[-1]
+            movieInfoPage.controls.clear()
+            movieInfoPage.controls.extend([
+                 ft.AppBar(title=ft.Text(
+                                            movieInfo['title'],
+                                            size=20
+                                        ),
+                                            bgcolor=ft.colors.SURFACE_VARIANT
+                        ),
+                MovieInfoPage(movieInfo).build(page,movieId)]
+            )
+            page.update()
+        else:
+            page.go("/movieInfo")
 
-    def build(self, page, movieId):
+    def build(self, page, movieId, isInMovieInfoPage = False):
         self.elements.controls.clear()
-        for i, row in self.filmList.iterrows():
+        for i, row in self.movieList.iterrows():
             self.elements.controls.append(
                 ft.TextButton(
                     content=ft.Column(
@@ -56,7 +71,7 @@ class ScrollingTab():
                     ),
                     tooltip=row["title"],
                     style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=20)),
-                    on_click=lambda _, row=row: self.on_button_click(page, row, movieId),
+                    on_click=lambda _, row=row: self.on_button_click(page, row, movieId, isInMovieInfoPage),
                 )
             )
         
@@ -115,11 +130,6 @@ class MovieInfoPage():
             margin=10, 
         )
 
-        self.similar_movies_title = ft.Text(
-                                        "Similar movies",
-                                        size=40
-        )
-
         self.similarMoviesTab = ScrollingTab(machine_learning_algorithms.RecommendSimilarMovies(movieInfo['id']),
                                              "Similar Movies")
 
@@ -138,7 +148,7 @@ class MovieInfoPage():
             scroll=ft.ScrollMode.AUTO,
         )
         
-        film_info = ft.Row([
+        movie_info = ft.Row([
             ft.Image(
                 src = self.poster_path,
                 width = 400,
@@ -155,10 +165,9 @@ class MovieInfoPage():
         )
 
         info_page = ft.Column(
-                    [film_info,
-                     self.similar_movies_title,
+                    [movie_info,
                      ft.Row(
-                            [self.similarMoviesTab.build(page, movieId)],
+                            [self.similarMoviesTab.build(page, movieId, True)],
                             alignment=ft.MainAxisAlignment.CENTER,
                         )],
                      expand=True,
@@ -215,7 +224,7 @@ class SearchResult():
     def on_button_click(self, page, row, movieId):
         movieId.clear()
         movieId.append(row["id"])
-        page.go("/filmInfo")
+        page.go("/movieInfo")
 
     def build(self, page, movieId):
         self.elements.controls.clear()

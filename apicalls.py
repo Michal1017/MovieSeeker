@@ -10,14 +10,14 @@ def GetApiKey(path):
     return API_KEY
 
 
-def GetMostPopularFilmsList():
+def GetMostPopularMoviesList():
     apiKey = GetApiKey('C:/Users/micha/.secret/tMDb_API.txt')
-    filmList = []
+    movieList = []
     url = 'https://api.themoviedb.org/3/discover/movie?&sort_by=popularity.desc&page=1&api_key='
     req = requests.get(url+apiKey).json()
     results = req['results']
-    filmList.extend(results)
-    resultList = pd.DataFrame(filmList)[['title', 'poster_path', 'vote_average','id']]
+    movieList.extend(results)
+    resultList = pd.DataFrame(movieList)[['title', 'poster_path', 'vote_average','id']]
     resultList['poster_path'] = 'https://image.tmdb.org/t/p/w500' + resultList['poster_path']
     return resultList
 
@@ -33,17 +33,17 @@ def MovieListByTitle(title):
     url = 'https://api.themoviedb.org/3/search/movie?api_key='+apiKey+"&query="+title
     req = requests.get(url).json()
     results = req['results']
-    filmList = []
-    filmList.extend(results)
+    movieList = []
+    movieList.extend(results)
     resultList = pd.DataFrame()
-    if not filmList:
+    if not movieList:
         return resultList
-    resultList[['title', 'poster_path', 'release_date', 'id']] = pd.DataFrame(filmList)[['title', 'poster_path', 'release_date', 'id']]
+    resultList[['title', 'poster_path', 'release_date', 'id']] = pd.DataFrame(movieList)[['title', 'poster_path', 'release_date', 'id']]
     resultList['release_date'] = resultList['release_date'].str[:4]
     resultList['poster_path'] = 'https://image.tmdb.org/t/p/w500' + resultList['poster_path']
     return resultList
 
-def GetFilmList():
+def GetMovieList():
     apiKey = GetApiKey('C:/Users/micha/.secret/tMDb_API.txt')
 
     finallist = []
@@ -55,21 +55,21 @@ def GetFilmList():
         results = req['results']
         finallist.extend(results)
 
-    with open("film_data.json", "w") as file:
+    with open("movie_data.json", "w") as file:
         json.dump(finallist, file)
 
-def GetFilmsFromJson():
-    if os.path.exists("film_data.json"):
-        with open("film_data.json", "r") as file:
-            films = json.load(file)
+def GetMoviesFromJson(shouldUpdate):
+    if shouldUpdate:
+        GetMovieList()
+        with open("movie_data.json", "r") as file:
+            movies = json.load(file)
     else:
-        GetFilmList()
-        with open("film_data.json", "r") as file:
-            films = json.load(file)
+        with open("movie_data.json", "r") as file:
+            movies = json.load(file)
 
-    films = pd.DataFrame(films)[['title','adult','genre_ids','id','original_language','overview','popularity','poster_path','release_date','vote_average','vote_count']]
+    movies = pd.DataFrame(movies)[['title','adult','genre_ids','id','original_language','overview','popularity','poster_path','release_date','vote_average','vote_count']]
 
-    return films
+    return movies
 
 def GetMovieGenres():
     apiKey = GetApiKey('C:/Users/micha/.secret/tMDb_API.txt')
@@ -89,9 +89,9 @@ def measure_time(func):
     execution_time = end_time - start_time
     return result, execution_time
 
-# result, execution_time = measure_time(GetFilmList)
-# films = []
-# with open("film_data.json", "r") as file:
-#     films = json.load(result)
+# result, execution_time = measure_time(GetMovieList)
+# movies = []
+# with open("movie_data.json", "r") as file:
+#     movies = json.load(result)
 # print(f"Execution time: {execution_time} seconds")
-# print(f"Number of movies: {len(films)}")
+# print(f"Number of movies: {len(movies)}")
