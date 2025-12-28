@@ -1,5 +1,6 @@
 import flet as ft
-
+import apicalls
+import machine_learning_algorithms
 # class which creates tab with actually most popular films
 class ScrollingTab():
     
@@ -119,7 +120,10 @@ class MovieInfoPage():
                                         size=40
         )
 
-    def build(self):
+        self.similarMoviesTab = ScrollingTab(machine_learning_algorithms.RecommendSimilarMovies(movieInfo['id']),
+                                             "Similar Movies")
+
+    def build(self, page, movieId):
         self.description = ft.Column(
             [
                 self.title,
@@ -152,7 +156,11 @@ class MovieInfoPage():
 
         info_page = ft.Column(
                     [film_info,
-                     self.similar_movies_title],
+                     self.similar_movies_title,
+                     ft.Row(
+                            [self.similarMoviesTab.build(page, movieId)],
+                            alignment=ft.MainAxisAlignment.CENTER,
+                        )],
                      expand=True,
                      scroll=ft.ScrollMode.AUTO,
                      )

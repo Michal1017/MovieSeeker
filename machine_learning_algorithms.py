@@ -25,8 +25,6 @@ def RecommendSimilarMovies(index):
 
     filmList['genres'] = filmList['genre_ids'].apply(lambda x: ' '.join([genresDict[i] for i in x]))
 
-    print(filmList.info())
-
     filmList['mixed_data'] = filmList["genres"] + " " + filmList["original_language"] + \
                              filmList["overview"]
     
@@ -67,16 +65,15 @@ def RecommendSimilarMovies(index):
     euclidian_distance = sorted(euclidian_distance, key=lambda x: x[1])
 
     # get top most similiar movies
-    euclidian_distance = euclidian_distance[1:11]
+    euclidian_distance = euclidian_distance[1:21]
 
     # get indices of most similiar movies
     recommend_movie_indices = [i[0] for i in euclidian_distance]
 
     recommend_movie = filmList.iloc[recommend_movie_indices]
 
-    print(recommend_movie['title'])
+    resultList = pd.DataFrame(recommend_movie)[['title', 'poster_path', 'vote_average','id']]
 
+    return resultList
 
-
-RecommendSimilarMovies(155)
 

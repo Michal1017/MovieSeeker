@@ -61,7 +61,7 @@ def main(page: ft.Page):
                                         ),
                                             bgcolor=ft.colors.SURFACE_VARIANT
                         ),
-                        movieInfoPage.build()
+                        movieInfoPage.build(page,movieId)
                     ],
                 )
             )

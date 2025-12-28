@@ -2,6 +2,7 @@ import json
 import requests
 import pandas as pd
 import os
+import time
 
 def GetApiKey(path):
     f = open(path, 'r')
@@ -81,3 +82,16 @@ def GetMovieGenres():
     
     return genresDict
 
+def measure_time(func):
+    start_time = time.time()  # Start the timer
+    result = func()           # Call the function
+    end_time = time.time()    # End the timer
+    execution_time = end_time - start_time
+    return result, execution_time
+
+# result, execution_time = measure_time(GetFilmList)
+# films = []
+# with open("film_data.json", "r") as file:
+#     films = json.load(result)
+# print(f"Execution time: {execution_time} seconds")
+# print(f"Number of movies: {len(films)}")
