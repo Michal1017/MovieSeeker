@@ -6,25 +6,25 @@ import search_result_view
 
 
 def main(page: ft.Page):
-    movieId = []
-    movieTitle = []
+    movie_id = []
+    movie_title = []
     page.title = "MovieSeeker"
     page.theme_mode = ft.ThemeMode.DARK
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
-    homeView = home_view.HomeView()
+    home_view_object = home_view.HomeView()
 
     def route_change(route):
         page.views.clear()
-        page.views.append(homeView.build(page, movieTitle, movieId))
+        page.views.append(home_view_object.build(page, movie_title, movie_id))
         if page.route == "/movieInfo":
-            movieInfo = api_calls.GetSpecificMovie(movieId[0])
+            movieInfo = api_calls.get_specific_movie(movie_id[0])
             movie_info_view_object = movie_info_view.MovieInfoPage(movieInfo)
-            page.views.append(movie_info_view_object.build(page, movieId))
+            page.views.append(movie_info_view_object.build(page, movie_id))
         if page.route == "/foundMovies":
-            movieList = api_calls.MovieListByTitle(movieTitle[0])
-            search_result_view_object = search_result_view.SearchResultView(movieList)
-            page.views.append(search_result_view_object.build(page, movieId))
+            movie_list = api_calls.movie_list_by_title(movie_title[0])
+            search_result_view_object = search_result_view.SearchResultView(movie_list)
+            page.views.append(search_result_view_object.build(page, movie_id))
         page.update()
 
     def view_pop(view):

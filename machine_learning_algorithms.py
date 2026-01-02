@@ -10,37 +10,37 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-def RecommendSimilarMovies(index):
-    movieList = api_calls.GetMoviesFromJson(False)
+def recommend_similar_movies(index):
+    movie_list = api_calls.get_movies_from_json(False)
 
-    movieList = movieList.drop_duplicates(subset=["title", "release_date"])
+    movie_list = movie_list.drop_duplicates(subset=["title", "release_date"])
 
-    movieList["release_year"] = (
-        movieList["release_date"].str.extract(r"([0-9]{4})", expand=True).astype(float)
+    movie_list["release_year"] = (
+        movie_list["release_date"].str.extract(r"([0-9]{4})", expand=True).astype(float)
     )
 
-    movieList.dropna(inplace=True)
+    movie_list.dropna(inplace=True)
 
-    movieList["release_year"] = movieList["release_year"].astype(int)
+    movie_list["release_year"] = movie_list["release_year"].astype(int)
 
-    genresDict = api_calls.GetMovieGenres()
+    genresDict = api_calls.get_movie_genres()
 
-    movieList["genres"] = movieList["genre_ids"].apply(
+    movie_list["genres"] = movie_list["genre_ids"].apply(
         lambda x: " ".join([genresDict[i] for i in x])
     )
 
-    movieList["mixed_data"] = (
-        movieList["genres"]
+    movie_list["mixed_data"] = (
+        movie_list["genres"]
         + " "
-        + movieList["original_language"]
-        + movieList["overview"]
+        + movie_list["original_language"]
+        + movie_list["overview"]
     )
 
-    movieList = movieList.reset_index()
-    indices = pd.Series(movieList.index, index=movieList["id"])
+    movie_list = movie_list.reset_index()
+    indices = pd.Series(movie_list.index, index=movie_list["id"])
 
     count = CountVectorizer(stop_words="english")
-    count_matrix = count.fit_transform(movieList["mixed_data"])
+    count_matrix = count.fit_transform(movie_list["mixed_data"])
 
     cosine_sim = cosine_similarity(count_matrix, count_matrix)
 
@@ -52,17 +52,17 @@ def RecommendSimilarMovies(index):
 
     similarities = similarities[1:31]
 
-    movieList["vote_count_norm"] = MinMaxScaler().fit_transform(
-        np.array(movieList["vote_count"]).reshape(-1, 1)
+    movie_list["vote_count_norm"] = MinMaxScaler().fit_transform(
+        np.array(movie_list["vote_count"]).reshape(-1, 1)
     )
-    movieList["popularity_norm"] = MinMaxScaler().fit_transform(
-        np.array(movieList["popularity"]).reshape(-1, 1)
+    movie_list["popularity_norm"] = MinMaxScaler().fit_transform(
+        np.array(movie_list["popularity"]).reshape(-1, 1)
     )
-    movieList["vote_average_norm"] = MinMaxScaler().fit_transform(
-        np.array(movieList["vote_average"]).reshape(-1, 1)
+    movie_list["vote_average_norm"] = MinMaxScaler().fit_transform(
+        np.array(movie_list["vote_average"]).reshape(-1, 1)
     )
-    movieList["release_year_norm"] = MinMaxScaler().fit_transform(
-        np.array(movieList["release_year"]).reshape(-1, 1)
+    movie_list["release_year_norm"] = MinMaxScaler().fit_transform(
+        np.array(movie_list["release_year"]).reshape(-1, 1)
     )
 
     recommend_movie_indices = [i[0] for i in similarities]
@@ -71,23 +71,23 @@ def RecommendSimilarMovies(index):
     for i in recommend_movie_indices:
         distance = sqrt(
             (
-                movieList["vote_count_norm"][index_of_movie]
-                - movieList["vote_count_norm"][i]
+                movie_list["vote_count_norm"][index_of_movie]
+                - movie_list["vote_count_norm"][i]
             )
             ** 2
             + (
-                movieList["popularity_norm"][index_of_movie]
-                - movieList["popularity_norm"][i]
+                movie_list["popularity_norm"][index_of_movie]
+                - movie_list["popularity_norm"][i]
             )
             ** 2
             + (
-                movieList["vote_average_norm"][index_of_movie]
-                - movieList["vote_average_norm"][i]
+                movie_list["vote_average_norm"][index_of_movie]
+                - movie_list["vote_average_norm"][i]
             )
             ** 2
             + (
-                movieList["release_year_norm"][index_of_movie]
-                - movieList["release_year_norm"][i]
+                movie_list["release_year_norm"][index_of_movie]
+                - movie_list["release_year_norm"][i]
             )
             ** 2
         )
@@ -101,7 +101,7 @@ def RecommendSimilarMovies(index):
     # get indices of most similiar movies
     recommend_movie_indices = [i[0] for i in euclidian_distance]
 
-    recommend_movie = movieList.iloc[recommend_movie_indices]
+    recommend_movie = movie_list.iloc[recommend_movie_indices]
 
     resultList = pd.DataFrame(recommend_movie)[
         ["title", "poster_path", "vote_average", "id"]

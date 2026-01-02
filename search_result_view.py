@@ -2,17 +2,17 @@ import flet as ft
 
 
 class SearchResultView:
-    def __init__(self, movieList):
+    def __init__(self, movie_list):
         self.title = "Search Result"
-        self.movieList = movieList
+        self.movie_list = movie_list
 
-    def on_movie_click(self, page, row, movieId):
-        movieId.clear()
-        movieId.append(row["id"])
+    def on_movie_click(self, page, row, movie_id):
+        movie_id.clear()
+        movie_id.append(row["id"])
         page.go("/movieInfo")
 
-    def build(self, page, movieId):
-        if self.movieList.empty:
+    def build(self, page, movie_id):
+        if self.movie_list.empty:
             return ft.View(
                 route="/foundMovies",
                 controls=[
@@ -26,7 +26,7 @@ class SearchResultView:
         else:
             elements = ft.Column(expand=1, scroll=ft.ScrollMode.AUTO, spacing=10)
             elements.controls.clear()
-            for _, row in self.movieList.iterrows():
+            for _, row in self.movie_list.iterrows():
                 elements.controls.append(
                     ft.TextButton(
                         content=ft.Row(
@@ -53,7 +53,7 @@ class SearchResultView:
                         ),
                         tooltip=row["title"],
                         on_click=lambda _, row=row: self.on_movie_click(
-                            page, row, movieId
+                            page, row, movie_id
                         ),
                     )
                 )

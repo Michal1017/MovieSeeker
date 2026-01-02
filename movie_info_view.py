@@ -4,34 +4,33 @@ import api_calls
 
 
 class MovieInfoPage:
-    def __init__(self, movieInfo):
-        self.movieInfo = movieInfo
-        self.similar_movies_list = machine_learning_algorithms.RecommendSimilarMovies(
-            movieInfo["id"]
+    def __init__(self, movie_info):
+        self.movie_info = movie_info
+        self.similar_movies_list = machine_learning_algorithms.recommend_similar_movies(
+            movie_info["id"]
         )
 
-    def on_movie_click(self, page, row, movieId):
-        movieId.clear()
-        movieId.append(row["id"])
-        movieInfo = api_calls.GetSpecificMovie(movieId[0])
-        self.movieInfo = movieInfo
-        self.similar_movies_list = machine_learning_algorithms.RecommendSimilarMovies(
-            movieInfo["id"]
+    def on_movie_click(self, page, row, movie_id):
+        movie_id.clear()
+        movie_id.append(row["id"])
+        self.movie_info = api_calls.get_specific_movie(movie_id[0])
+        self.similar_movies_list = machine_learning_algorithms.recommend_similar_movies(
+            self.movie_info["id"]
         )
-        movieInfoPage = page.views[-1]
-        movieInfoPage.controls.clear()
-        movieInfoPage.controls.extend(
+        movie_info_page = page.views[-1]
+        movie_info_page.controls.clear()
+        movie_info_page.controls.extend(
             [
                 ft.AppBar(
-                    title=ft.Text(movieInfo["title"], size=20),
+                    title=ft.Text(self.movie_info["title"], size=20),
                     bgcolor=ft.colors.SURFACE_VARIANT,
                 ),
-                self.build_movie_info_page(page, movieId),
+                self.build_movie_info_page(page, movie_id),
             ]
         )
         page.update()
 
-    def build_similar_movies_tab(self, page, movieId):
+    def build_similar_movies_tab(self, page, movie_id):
         elements = ft.Row(expand=1, scroll=ft.ScrollMode.AUTO, spacing=10)
         for _, row in self.similar_movies_list.iterrows():
             elements.controls.append(
@@ -63,18 +62,20 @@ class MovieInfoPage:
                     ),
                     tooltip=row["title"],
                     style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=20)),
-                    on_click=lambda _, row=row: self.on_movie_click(page, row, movieId),
+                    on_click=lambda _, row=row: self.on_movie_click(
+                        page, row, movie_id
+                    ),
                 )
             )
         return elements
 
-    def build_movie_info_page(self, page, movieId):
+    def build_movie_info_page(self, page, movie_id):
         description = ft.Column(
             [
-                ft.Text(self.movieInfo["title"], size=50, weight=ft.FontWeight.BOLD),
+                ft.Text(self.movie_info["title"], size=50, weight=ft.FontWeight.BOLD),
                 ft.Container(
                     content=ft.Text(
-                        str(round(self.movieInfo["vote_average"], 2)) + "/10",
+                        str(round(self.movie_info["vote_average"], 2)) + "/10",
                         size=30,
                     ),
                     bgcolor=ft.colors.BLUE_700,
@@ -83,14 +84,14 @@ class MovieInfoPage:
                     margin=10,
                 ),
                 ft.Row(
-                    [ft.Text(g["name"], italic=True) for g in self.movieInfo["genres"]]
+                    [ft.Text(g["name"], italic=True) for g in self.movie_info["genres"]]
                 ),
-                ft.Text(self.movieInfo["overview"], width=600, size=18),
+                ft.Text(self.movie_info["overview"], width=600, size=18),
                 ft.Text(
-                    "Release year: " + self.movieInfo["release_date"][0:4], size=20
+                    "Release year: " + self.movie_info["release_date"][0:4], size=20
                 ),
                 ft.Text(
-                    "Run time: " + str(self.movieInfo["runtime"]) + " min", size=20
+                    "Run time: " + str(self.movie_info["runtime"]) + " min", size=20
                 ),
             ],
             scroll=ft.ScrollMode.AUTO,
@@ -99,7 +100,7 @@ class MovieInfoPage:
         movie_info_result = ft.Row(
             [
                 ft.Image(
-                    src=self.movieInfo["poster_path"],
+                    src=self.movie_info["poster_path"],
                     width=400,
                     height=600,
                     border_radius=20,
@@ -113,7 +114,7 @@ class MovieInfoPage:
             [
                 movie_info_result,
                 ft.Row(
-                    [self.build_similar_movies_tab(page, movieId)],
+                    [self.build_similar_movies_tab(page, movie_id)],
                     alignment=ft.MainAxisAlignment.CENTER,
                 ),
             ],
@@ -121,14 +122,14 @@ class MovieInfoPage:
             scroll=ft.ScrollMode.AUTO,
         )
 
-    def build(self, page, movieId):
+    def build(self, page, movie_id):
         return ft.View(
             route="/movieInfo",
             controls=[
                 ft.AppBar(
-                    title=ft.Text(self.movieInfo["title"], size=20),
+                    title=ft.Text(self.movie_info["title"], size=20),
                     bgcolor=ft.colors.SURFACE_VARIANT,
                 ),
-                self.build_movie_info_page(page, movieId),
+                self.build_movie_info_page(page, movie_id),
             ],
         )

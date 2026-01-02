@@ -5,36 +5,38 @@ import os
 import time
 
 
-def GetApiKey(path):
+def get_api_key(path):
     f = open(path, "r")
     API_KEY = f.read()
     return API_KEY
 
 
-def GetMostPopularMoviesList():
-    apiKey = GetApiKey("C:/Users/micha/.secret/tMDb_API.txt")
-    movieList = []
+def get_most_popular_movies_list():
+    apiKey = get_api_key("C:/Users/micha/.secret/tMDb_API.txt")
+    movie_list = []
     url = "https://api.themoviedb.org/3/discover/movie?&sort_by=popularity.desc&page=1&api_key="
     req = requests.get(url + apiKey).json()
     results = req["results"]
-    movieList.extend(results)
-    resultList = pd.DataFrame(movieList)[["title", "poster_path", "vote_average", "id"]]
+    movie_list.extend(results)
+    resultList = pd.DataFrame(movie_list)[
+        ["title", "poster_path", "vote_average", "id"]
+    ]
     resultList["poster_path"] = (
         "https://image.tmdb.org/t/p/w500" + resultList["poster_path"]
     )
     return resultList
 
 
-def GetSpecificMovie(id):
-    apiKey = GetApiKey("C:/Users/micha/.secret/tMDb_API.txt")
+def get_specific_movie(id):
+    apiKey = get_api_key("C:/Users/micha/.secret/tMDb_API.txt")
     url = "https://api.themoviedb.org/3/movie/" + str(id) + "?api_key="
     req = requests.get(url + apiKey).json()
     req["poster_path"] = "https://image.tmdb.org/t/p/w500" + req["poster_path"]
     return req
 
 
-def MovieListByTitle(title):
-    apiKey = GetApiKey("C:/Users/micha/.secret/tMDb_API.txt")
+def movie_list_by_title(title):
+    apiKey = get_api_key("C:/Users/micha/.secret/tMDb_API.txt")
     url = (
         "https://api.themoviedb.org/3/search/movie?api_key="
         + apiKey
@@ -43,13 +45,13 @@ def MovieListByTitle(title):
     )
     req = requests.get(url).json()
     results = req["results"]
-    movieList = []
-    movieList.extend(results)
+    movie_list = []
+    movie_list.extend(results)
     resultList = pd.DataFrame()
-    if not movieList:
+    if not movie_list:
         return resultList
     resultList[["title", "poster_path", "release_date", "id"]] = pd.DataFrame(
-        movieList
+        movie_list
     )[["title", "poster_path", "release_date", "id"]]
     resultList["release_date"] = resultList["release_date"].str[:4]
     resultList["poster_path"] = (
@@ -58,8 +60,8 @@ def MovieListByTitle(title):
     return resultList
 
 
-def GetMovieList():
-    apiKey = GetApiKey("C:/Users/micha/.secret/tMDb_API.txt")
+def get_movie_list():
+    apiKey = get_api_key("C:/Users/micha/.secret/tMDb_API.txt")
 
     finallist = []
     n = 0
@@ -76,9 +78,9 @@ def GetMovieList():
         json.dump(finallist, file)
 
 
-def GetMoviesFromJson(shouldUpdate):
+def get_movies_from_json(shouldUpdate):
     if shouldUpdate:
-        GetMovieList()
+        get_movie_list()
         with open("movie_data.json", "r") as file:
             movies = json.load(file)
     else:
@@ -104,8 +106,8 @@ def GetMoviesFromJson(shouldUpdate):
     return movies
 
 
-def GetMovieGenres():
-    apiKey = GetApiKey("C:/Users/micha/.secret/tMDb_API.txt")
+def get_movie_genres():
+    apiKey = get_api_key("C:/Users/micha/.secret/tMDb_API.txt")
     url = "https://api.themoviedb.org/3/genre/movie/list?language=en&api_key="
     req = requests.get(url + apiKey).json()
     results = req["genres"]
@@ -124,7 +126,7 @@ def measure_time(func):
     return result, execution_time
 
 
-# result, execution_time = measure_time(GetMovieList)
+# result, execution_time = measure_time(get_movie_list)
 # movies = []
 # with open("movie_data.json", "r") as file:
 #     movies = json.load(result)
