@@ -3,6 +3,8 @@ import requests
 import pandas as pd
 import os
 import time
+import flet as ft
+from datetime import datetime
 
 
 def get_api_key(path):
@@ -132,3 +134,55 @@ def measure_time(func):
 #     movies = json.load(result)
 # print(f"Execution time: {execution_time} seconds")
 # print(f"Number of movies: {len(movies)}")
+
+
+def is_int_textfield(tf):
+    if not tf.value:
+        return False
+    try:
+        int(tf.value)
+        return True
+    except ValueError:
+        return False
+
+
+def find_movie_with_filters(from_year, to_year, min_time, max_time):
+    apiKey = get_api_key("C:/Users/micha/.secret/tMDb_API.txt")
+    movie_list = []
+    url = "https://api.themoviedb.org/3/discover/movie?language=en-US&page=1&sort_by=popularity.desc"
+    current_year = datetime.now().year
+    if (
+        is_int_textfield(from_year)
+        and int(from_year.value) >= 1888
+        and int(from_year.value) <= current_year
+    ):
+        url = url + f"&primary_release_date.gte={from_year.value}-01-01"
+    if (
+        is_int_textfield(to_year)
+        and int(to_year.value) >= 1888
+        and int(to_year.value) <= current_year
+        and int(to_year.value) >= int(from_year.value)
+    ):
+        url = url + f"&primary_release_date.lte={to_year.value}-12-31"
+    if is_int_textfield(min_time) and int(min_time.value) > 0:
+        url = url + f"&with_runtime.gte={min_time.value}"
+    if (
+        is_int_textfield(max_time)
+        and int(max_time.value) > 0
+        and int(max_time.value) >= int(min_time.value)
+    ):
+        url = url + f"&with_runtime.lte={max_time.value}"
+
+    url = url + "&api_key=" + apiKey
+    req = requests.get(url).json()
+    results = req["results"]
+    movie_list.extend(results)
+    resultList = pd.DataFrame(movie_list)[["title", "poster_path", "id"]]
+    resultList["poster_path"] = (
+        "https://image.tmdb.org/t/p/w500" + resultList["poster_path"]
+    )
+
+    if not resultList.empty:
+        return resultList.sample(1).iloc[0]
+    else:
+        return "Empty result"
