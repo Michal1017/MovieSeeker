@@ -60,9 +60,10 @@ class SearchResultView:
 
             search_result = ft.Column(
                 [ft.Text(self.title, size=30, color=ft.colors.BLUE_200), elements],
-                width=1160,
-                height=600,
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                scroll=ft.ScrollMode.AUTO,
+                expand=True,
+                alignment=ft.MainAxisAlignment.CENTER,
             )
 
             return ft.View(

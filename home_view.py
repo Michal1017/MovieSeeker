@@ -93,11 +93,21 @@ class HomeView:
         )
 
     def on_button_find_movie_click(
-        self, page, movie_id, result_layout, from_year, to_year, min_time, max_time
+        self,
+        page,
+        movie_id,
+        result_layout,
+        from_year,
+        to_year,
+        min_time,
+        max_time,
+        checkboxes,
     ):
+
         result_layout.content.controls.clear()
+        genres = [cb.label for cb in checkboxes if cb.value]
         selected_movie = api_calls.find_movie_with_filters(
-            from_year, to_year, min_time, max_time
+            from_year, to_year, min_time, max_time, genres
         )
 
         if isinstance(selected_movie, str):
@@ -164,6 +174,16 @@ class HomeView:
             keyboard_type=ft.KeyboardType.NUMBER,
         )
 
+        checkboxes = []
+
+        list_of_genres = ft.Row(
+            expand=1, scroll=ft.ScrollMode.AUTO, spacing=5, width=1000
+        )
+        for genre in api_calls.get_movie_genres().values():
+            checkbox = ft.Checkbox(label=genre)
+            checkboxes.append(checkbox)
+            list_of_genres.controls.append(checkbox)
+
         result_film = ft.Container(
             content=ft.Column(
                 [
@@ -211,6 +231,8 @@ class HomeView:
                         ft.Text("Minutes", size=18, color=ft.colors.BLUE_200),
                     ]
                 ),
+                ft.Text("Choose genre", size=24, color=ft.colors.BLUE_200),
+                list_of_genres,
                 result_film,
                 ft.ElevatedButton(
                     content=ft.Text("Find movie", size=40, color=ft.colors.BLUE_200),
@@ -224,27 +246,13 @@ class HomeView:
                         to_year,
                         min_time,
                         max_time,
+                        checkboxes,
                     ),
                 ),
             ],
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             spacing=25,
         )
-
-        # result_layout = ft.Column(
-        #     horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-        # )
-
-        # result_layout.controls.extend(
-        #     [
-        #         ft.ElevatedButton(
-        #             text="Find movie",
-        #             on_click=lambda _: self.on_button_find_movie_click(
-        #                 page, result_layout, from_year, to_year
-        #             ),
-        #         ),
-        #     ]
-        # )
 
         return input_data_layout
 
@@ -258,7 +266,7 @@ class HomeView:
                             [
                                 ft.Text(
                                     self.title,
-                                    size=80,
+                                    size=160,
                                     text_align=ft.TextAlign.CENTER,
                                     color=ft.colors.BLUE_700,
                                     weight=ft.FontWeight.BOLD,

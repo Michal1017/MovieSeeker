@@ -177,7 +177,7 @@ def is_int_textfield(tf):
         return False
 
 
-def find_movie_with_filters(from_year, to_year, min_time, max_time):
+def find_movie_with_filters(from_year, to_year, min_time, max_time, genres):
     apiKey = get_api_key("C:/Users/micha/.secret/tMDb_API.txt")
     movie_list = []
     url = "https://api.themoviedb.org/3/discover/movie?language=en-US&page=1&sort_by=popularity.desc"
@@ -192,7 +192,10 @@ def find_movie_with_filters(from_year, to_year, min_time, max_time):
         is_int_textfield(to_year)
         and int(to_year.value) >= 1888
         and int(to_year.value) <= current_year
-        and int(to_year.value) >= int(from_year.value)
+        and (
+            not is_int_textfield(from_year)
+            or int(to_year.value) >= int(from_year.value)
+        )
     ):
         url = url + f"&primary_release_date.lte={to_year.value}-12-31"
     if is_int_textfield(min_time) and int(min_time.value) > 0:
@@ -200,9 +203,21 @@ def find_movie_with_filters(from_year, to_year, min_time, max_time):
     if (
         is_int_textfield(max_time)
         and int(max_time.value) > 0
-        and int(max_time.value) >= int(min_time.value)
+        and (
+            not is_int_textfield(min_time) or int(max_time.value) >= int(min_time.value)
+        )
     ):
         url = url + f"&with_runtime.lte={max_time.value}"
+
+    if genres:
+        all_genres = get_movie_genres()
+        checked_keys = [key for key, value in all_genres.items() if value in genres]
+        url = url + "&with_genres="
+        for i, value in enumerate(checked_keys):
+            if i == len(checked_keys) - 1:
+                url = url + f"{value}"
+            else:
+                url = url + f"{value},"
 
     url = url + "&api_key=" + apiKey
     req = requests.get(url).json()
