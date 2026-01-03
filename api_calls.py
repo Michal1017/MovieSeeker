@@ -13,6 +13,13 @@ def get_api_key(path):
     return API_KEY
 
 
+def full_poster_path(path):
+    if pd.isna(path):
+        return "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8u_kGMjMWclIFDsOJpohPnMVS1cuFf7Kvcg&s"
+    else:
+        return "https://image.tmdb.org/t/p/w500" + path
+
+
 def get_most_popular_movies_list():
     apiKey = get_api_key("C:/Users/micha/.secret/tMDb_API.txt")
     movie_list = []
@@ -23,9 +30,7 @@ def get_most_popular_movies_list():
     resultList = pd.DataFrame(movie_list)[
         ["title", "poster_path", "vote_average", "id"]
     ]
-    resultList["poster_path"] = (
-        "https://image.tmdb.org/t/p/w500" + resultList["poster_path"]
-    )
+    resultList["poster_path"] = resultList["poster_path"].apply(full_poster_path)
     return resultList
 
 
@@ -33,8 +38,34 @@ def get_specific_movie(id):
     apiKey = get_api_key("C:/Users/micha/.secret/tMDb_API.txt")
     url = "https://api.themoviedb.org/3/movie/" + str(id) + "?api_key="
     req = requests.get(url + apiKey).json()
-    req["poster_path"] = "https://image.tmdb.org/t/p/w500" + req["poster_path"]
+    if pd.isna(req["poster_path"]):
+        req["poster_path"] = (
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8u_kGMjMWclIFDsOJpohPnMVS1cuFf7Kvcg&s"
+        )
+    else:
+        req["poster_path"] = "https://image.tmdb.org/t/p/w500" + req["poster_path"]
     return req
+
+
+def get_specific_movie_for_finding_similar_movies_algorithm(id):
+    apiKey = get_api_key("C:/Users/micha/.secret/tMDb_API.txt")
+    url = "https://api.themoviedb.org/3/movie/" + str(id) + "?api_key="
+    req = requests.get(url + apiKey).json()
+    keys = (
+        "title",
+        "adult",
+        "genre_ids",
+        "id",
+        "original_language",
+        "overview",
+        "popularity",
+        "poster_path",
+        "release_date",
+        "vote_average",
+        "vote_count",
+    )
+
+    return {k: req[k] for k in keys if k in req}
 
 
 def movie_list_by_title(title):
