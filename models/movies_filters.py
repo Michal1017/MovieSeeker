@@ -1,0 +1,11 @@
+from dataclasses import dataclass
+import flet as ft
+
+
+@dataclass
+class MoviesFilters:
+    from_year: ft.TextField | None = None
+    to_year: ft.TextField | None = None
+    min_time: ft.TextField | None = None
+    max_time: ft.TextField | None = None
+    genres: list | None = None

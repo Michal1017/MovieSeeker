@@ -5,6 +5,7 @@ import os
 import time
 import flet as ft
 from datetime import datetime
+from models.movies_filters import MoviesFilters
 
 
 def get_api_key(path):
@@ -177,41 +178,51 @@ def is_int_textfield(tf):
         return False
 
 
-def find_movie_with_filters(from_year, to_year, min_time, max_time, genres):
+def find_movie_with_filters(movie_filters):
     apiKey = get_api_key("C:/Users/micha/.secret/tMDb_API.txt")
     movie_list = []
     url = "https://api.themoviedb.org/3/discover/movie?language=en-US&page=1&sort_by=popularity.desc"
     current_year = datetime.now().year
     if (
-        is_int_textfield(from_year)
-        and int(from_year.value) >= 1888
-        and int(from_year.value) <= current_year
+        is_int_textfield(movie_filters.from_year)
+        and int(movie_filters.from_year.value) >= 1888
+        and int(movie_filters.from_year.value) <= current_year
     ):
-        url = url + f"&primary_release_date.gte={from_year.value}-01-01"
+        url = url + f"&primary_release_date.gte={movie_filters.from_year.value}-01-01"
     if (
-        is_int_textfield(to_year)
-        and int(to_year.value) >= 1888
-        and int(to_year.value) <= current_year
+        is_int_textfield(movie_filters.to_year)
+        and int(movie_filters.to_year.value) >= 1888
+        and int(movie_filters.to_year.value) <= current_year
         and (
-            not is_int_textfield(from_year)
-            or int(to_year.value) >= int(from_year.value)
+            not is_int_textfield(movie_filters.from_year)
+            or int(movie_filters.to_year.value) >= int(movie_filters.from_year.value)
         )
     ):
-        url = url + f"&primary_release_date.lte={to_year.value}-12-31"
-    if is_int_textfield(min_time) and int(min_time.value) > 0:
-        url = url + f"&with_runtime.gte={min_time.value}"
+        url = url + f"&primary_release_date.lte={movie_filters.to_year.value}-12-31"
     if (
-        is_int_textfield(max_time)
-        and int(max_time.value) > 0
+        is_int_textfield(movie_filters.min_time)
+        and int(movie_filters.min_time.value) > 0
+    ):
+        url = url + f"&with_runtime.gte={movie_filters.min_time.value}"
+    if (
+        is_int_textfield(movie_filters.max_time)
+        and int(movie_filters.max_time.value) > 0
         and (
-            not is_int_textfield(min_time) or int(max_time.value) >= int(min_time.value)
+            not is_int_textfield(movie_filters.min_time)
+            or int(movie_filters.max_time.value) >= int(movie_filters.min_time.value)
         )
     ):
-        url = url + f"&with_runtime.lte={max_time.value}"
+        url = url + f"&with_runtime.lte={movie_filters.max_time.value}"
 
-    if genres:
+    choosed_genres = [cb.label for cb in movie_filters.genres if cb.value]
+
+    if choosed_genres:
+        print("hello")
+        print(choosed_genres)
         all_genres = get_movie_genres()
-        checked_keys = [key for key, value in all_genres.items() if value in genres]
+        checked_keys = [
+            key for key, value in all_genres.items() if value in choosed_genres
+        ]
         url = url + "&with_genres="
         for i, value in enumerate(checked_keys):
             if i == len(checked_keys) - 1:

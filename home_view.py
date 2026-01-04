@@ -1,6 +1,7 @@
 import flet as ft
 import api_calls
 import pandas as pd
+from models.movies_filters import MoviesFilters
 
 
 class HomeView:
@@ -92,23 +93,10 @@ class HomeView:
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         )
 
-    def on_button_find_movie_click(
-        self,
-        page,
-        movie_id,
-        result_layout,
-        from_year,
-        to_year,
-        min_time,
-        max_time,
-        checkboxes,
-    ):
+    def on_button_find_movie_click(self, page, movie_id, result_layout, movie_filters):
 
         result_layout.content.controls.clear()
-        genres = [cb.label for cb in checkboxes if cb.value]
-        selected_movie = api_calls.find_movie_with_filters(
-            from_year, to_year, min_time, max_time, genres
-        )
+        selected_movie = api_calls.find_movie_with_filters(movie_filters)
 
         if isinstance(selected_movie, str):
             result_layout.content.controls.extend(
@@ -154,34 +142,36 @@ class HomeView:
         page.update()
 
     def build_find_movie_for_you_layout(self, page, movie_id):
-        from_year = ft.TextField(
+        movie_filters = MoviesFilters()
+
+        movie_filters.from_year = ft.TextField(
             label="Year",
             keyboard_type=ft.KeyboardType.NUMBER,
         )
 
-        to_year = ft.TextField(
+        movie_filters.to_year = ft.TextField(
             label="Year",
             keyboard_type=ft.KeyboardType.NUMBER,
         )
 
-        min_time = ft.TextField(
+        movie_filters.min_time = ft.TextField(
             label="Minimal number of minutes",
             keyboard_type=ft.KeyboardType.NUMBER,
         )
 
-        max_time = ft.TextField(
+        movie_filters.max_time = ft.TextField(
             label="Maximal number of minutes",
             keyboard_type=ft.KeyboardType.NUMBER,
         )
 
-        checkboxes = []
+        movie_filters.genres = []
 
         list_of_genres = ft.Row(
             expand=1, scroll=ft.ScrollMode.AUTO, spacing=5, width=1000
         )
         for genre in api_calls.get_movie_genres().values():
             checkbox = ft.Checkbox(label=genre)
-            checkboxes.append(checkbox)
+            movie_filters.genres.append(checkbox)
             list_of_genres.controls.append(checkbox)
 
         result_film = ft.Container(
@@ -216,18 +206,18 @@ class HomeView:
                 ft.Row(
                     [
                         ft.Text("From", size=18, color=ft.colors.BLUE_200),
-                        from_year,
+                        movie_filters.from_year,
                         ft.Text("To", size=18, color=ft.colors.BLUE_200),
-                        to_year,
+                        movie_filters.to_year,
                     ]
                 ),
                 ft.Text("Choose runtime", size=24, color=ft.colors.BLUE_200),
                 ft.Row(
                     [
                         ft.Text("From", size=18, color=ft.colors.BLUE_200),
-                        min_time,
+                        movie_filters.min_time,
                         ft.Text("Minutes To", size=18, color=ft.colors.BLUE_200),
-                        max_time,
+                        movie_filters.max_time,
                         ft.Text("Minutes", size=18, color=ft.colors.BLUE_200),
                     ]
                 ),
@@ -239,14 +229,7 @@ class HomeView:
                     width=500,
                     height=80,
                     on_click=lambda _: self.on_button_find_movie_click(
-                        page,
-                        movie_id,
-                        result_film,
-                        from_year,
-                        to_year,
-                        min_time,
-                        max_time,
-                        checkboxes,
+                        page, movie_id, result_film, movie_filters
                     ),
                 ),
             ],
