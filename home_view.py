@@ -93,151 +93,8 @@ class HomeView:
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         )
 
-    def on_button_find_movie_click(self, page, movie_id, result_layout, movie_filters):
-
-        result_layout.content.controls.clear()
-        selected_movie = api_calls.find_movie_with_filters(movie_filters)
-
-        if isinstance(selected_movie, str):
-            result_layout.content.controls.extend(
-                [
-                    ft.Text(selected_movie, size=18, color=ft.colors.BLUE_200),
-                ]
-            )
-        elif isinstance(selected_movie, pd.Series):
-            result_layout.content.controls.extend(
-                [
-                    ft.TextButton(
-                        content=ft.Column(
-                            [
-                                ft.Image(
-                                    src=selected_movie["poster_path"],
-                                    width=300,
-                                    height=300,
-                                    fit=ft.ImageFit.FILL,
-                                    repeat=ft.ImageRepeat.NO_REPEAT,
-                                    border_radius=ft.border_radius.all(10),
-                                ),
-                                ft.Text(
-                                    selected_movie["title"],
-                                    size=18,
-                                    color=ft.colors.BLUE_100,
-                                    weight=ft.FontWeight.BOLD,
-                                    width=200,
-                                    overflow=ft.TextOverflow.ELLIPSIS,
-                                ),
-                            ],
-                            alignment=ft.MainAxisAlignment.CENTER,
-                        ),
-                        tooltip=selected_movie["title"],
-                        style=ft.ButtonStyle(
-                            shape=ft.RoundedRectangleBorder(radius=20)
-                        ),
-                        on_click=lambda _: self.on_movie_click(
-                            page, selected_movie, movie_id
-                        ),
-                    )
-                ]
-            )
-        page.update()
-
-    def build_find_movie_for_you_layout(self, page, movie_id):
-        movie_filters = MoviesFilters()
-
-        movie_filters.from_year = ft.TextField(
-            label="Year",
-            keyboard_type=ft.KeyboardType.NUMBER,
-        )
-
-        movie_filters.to_year = ft.TextField(
-            label="Year",
-            keyboard_type=ft.KeyboardType.NUMBER,
-        )
-
-        movie_filters.min_time = ft.TextField(
-            label="Minimal number of minutes",
-            keyboard_type=ft.KeyboardType.NUMBER,
-        )
-
-        movie_filters.max_time = ft.TextField(
-            label="Maximal number of minutes",
-            keyboard_type=ft.KeyboardType.NUMBER,
-        )
-
-        movie_filters.genres = []
-
-        list_of_genres = ft.Row(
-            expand=1, scroll=ft.ScrollMode.AUTO, spacing=5, width=1000
-        )
-        for genre in api_calls.get_movie_genres().values():
-            checkbox = ft.Checkbox(label=genre)
-            movie_filters.genres.append(checkbox)
-            list_of_genres.controls.append(checkbox)
-
-        result_film = ft.Container(
-            content=ft.Column(
-                [
-                    ft.Icon(
-                        name=ft.icons.QUESTION_MARK_ROUNDED,
-                        size=200,
-                        color=ft.colors.BLUE_700,
-                    )
-                ],
-                width=300,
-                height=400,
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                alignment=ft.MainAxisAlignment.CENTER,
-            ),
-            alignment=ft.alignment.center,
-            border=ft.border.all(10, ft.colors.BLUE_700),
-            border_radius=12,
-            padding=10,
-        )
-
-        input_data_layout = ft.Column(
-            [
-                ft.Text(
-                    "Choose Movie For You",
-                    size=30,
-                    color=ft.colors.BLUE_700,
-                    weight=ft.FontWeight.BOLD,
-                ),
-                ft.Text("Choose release year range", size=24, color=ft.colors.BLUE_200),
-                ft.Row(
-                    [
-                        ft.Text("From", size=18, color=ft.colors.BLUE_200),
-                        movie_filters.from_year,
-                        ft.Text("To", size=18, color=ft.colors.BLUE_200),
-                        movie_filters.to_year,
-                    ]
-                ),
-                ft.Text("Choose runtime", size=24, color=ft.colors.BLUE_200),
-                ft.Row(
-                    [
-                        ft.Text("From", size=18, color=ft.colors.BLUE_200),
-                        movie_filters.min_time,
-                        ft.Text("Minutes To", size=18, color=ft.colors.BLUE_200),
-                        movie_filters.max_time,
-                        ft.Text("Minutes", size=18, color=ft.colors.BLUE_200),
-                    ]
-                ),
-                ft.Text("Choose genre", size=24, color=ft.colors.BLUE_200),
-                list_of_genres,
-                result_film,
-                ft.ElevatedButton(
-                    content=ft.Text("Find movie", size=40, color=ft.colors.BLUE_200),
-                    width=500,
-                    height=80,
-                    on_click=lambda _: self.on_button_find_movie_click(
-                        page, movie_id, result_film, movie_filters
-                    ),
-                ),
-            ],
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            spacing=25,
-        )
-
-        return input_data_layout
+    def on_button_find_movie_for_you_click(self, page):
+        page.go("/findMovieForYou")
 
     def build(self, page, movie_title, movie_id):
         return ft.View(
@@ -259,11 +116,22 @@ class HomeView:
                         ),
                         self.build_search_tab(page, movie_title),
                         ft.Row(
-                            [self.build_most_popular_movies_tab(page, movie_id)],
+                            [
+                                ft.ElevatedButton(
+                                    content=ft.Text(
+                                        "Find Movie For You",
+                                        color=ft.colors.BLUE_700,
+                                        size=60,
+                                    ),
+                                    on_click=lambda _: self.on_button_find_movie_for_you_click(
+                                        page
+                                    ),
+                                )
+                            ],
                             alignment=ft.MainAxisAlignment.CENTER,
                         ),
                         ft.Row(
-                            [self.build_find_movie_for_you_layout(page, movie_id)],
+                            [self.build_most_popular_movies_tab(page, movie_id)],
                             alignment=ft.MainAxisAlignment.CENTER,
                         ),
                     ],

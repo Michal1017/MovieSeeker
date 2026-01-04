@@ -3,6 +3,7 @@ import api_calls
 import home_view
 import movie_info_view
 import search_result_view
+import find_movie_for_you_view
 
 
 def main(page: ft.Page):
@@ -25,6 +26,11 @@ def main(page: ft.Page):
             movie_list = api_calls.movie_list_by_title(movie_title[0])
             search_result_view_object = search_result_view.SearchResultView(movie_list)
             page.views.append(search_result_view_object.build(page, movie_id))
+        if page.route == "/findMovieForYou":
+            find_movie_for_you_view_object = (
+                find_movie_for_you_view.FindMovieForYouView()
+            )
+            page.views.append(find_movie_for_you_view_object.build(page, movie_id))
         page.update()
 
     def view_pop(view):

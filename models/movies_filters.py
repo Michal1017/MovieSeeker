@@ -9,3 +9,5 @@ class MoviesFilters:
     min_time: ft.TextField | None = None
     max_time: ft.TextField | None = None
     genres: list | None = None
+    min_rating: ft.TextField | None = None
+    max_rating: ft.TextField | None = None

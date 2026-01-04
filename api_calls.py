@@ -178,6 +178,16 @@ def is_int_textfield(tf):
         return False
 
 
+def is_float_textfield(tf):
+    if not tf.value:
+        return False
+    try:
+        float(tf.value)
+        return True
+    except ValueError:
+        return False
+
+
 def find_movie_with_filters(movie_filters):
     apiKey = get_api_key("C:/Users/micha/.secret/tMDb_API.txt")
     movie_list = []
@@ -213,12 +223,27 @@ def find_movie_with_filters(movie_filters):
         )
     ):
         url = url + f"&with_runtime.lte={movie_filters.max_time.value}"
+    if (
+        is_float_textfield(movie_filters.min_rating)
+        and float(movie_filters.min_rating.value) >= 0
+        and float(movie_filters.min_rating.value) <= 10
+    ):
+        url = url + f"&vote_average.gte={movie_filters.min_rating.value}"
+    if (
+        is_float_textfield(movie_filters.max_rating)
+        and float(movie_filters.max_rating.value) >= 0
+        and float(movie_filters.max_rating.value) <= 10
+        and (
+            not is_float_textfield(movie_filters.min_rating)
+            or float(movie_filters.max_rating.value)
+            >= float(movie_filters.min_rating.value)
+        )
+    ):
+        url = url + f"&vote_average.lte={movie_filters.max_rating.value}"
 
     choosed_genres = [cb.label for cb in movie_filters.genres if cb.value]
 
     if choosed_genres:
-        print("hello")
-        print(choosed_genres)
         all_genres = get_movie_genres()
         checked_keys = [
             key for key, value in all_genres.items() if value in choosed_genres
