@@ -255,6 +255,22 @@ def find_movie_with_filters(movie_filters):
             else:
                 url = url + f"{value},"
 
+    choosed_unwanted_genres = [
+        cb.label for cb in movie_filters.unwanted_genres if cb.value
+    ]
+
+    if choosed_unwanted_genres:
+        all_genres = get_movie_genres()
+        checked_keys = [
+            key for key, value in all_genres.items() if value in choosed_unwanted_genres
+        ]
+        url = url + "&without_genres="
+        for i, value in enumerate(checked_keys):
+            if i == len(checked_keys) - 1:
+                url = url + f"{value}"
+            else:
+                url = url + f"{value},"
+
     url = url + "&api_key=" + apiKey
     req = requests.get(url).json()
     results = req["results"]

@@ -95,14 +95,23 @@ class FindMovieForYouView:
         )
 
         movie_filters.genres = []
+        movie_filters.unwanted_genres = []
 
         list_of_genres = ft.Row(
             expand=1, scroll=ft.ScrollMode.AUTO, spacing=5, width=1000
         )
+        list_of_unwanted_genres = ft.Row(
+            expand=1, scroll=ft.ScrollMode.AUTO, spacing=5, width=1000
+        )
+
         for genre in api_calls.get_movie_genres().values():
             checkbox = ft.Checkbox(label=genre)
             movie_filters.genres.append(checkbox)
             list_of_genres.controls.append(checkbox)
+        for genre in api_calls.get_movie_genres().values():
+            checkbox = ft.Checkbox(label=genre)
+            movie_filters.unwanted_genres.append(checkbox)
+            list_of_unwanted_genres.controls.append(checkbox)
 
         result_film = ft.Container(
             content=ft.Column(
@@ -170,8 +179,12 @@ class FindMovieForYouView:
                     ],
                     alignment=ft.MainAxisAlignment.CENTER,
                 ),
-                ft.Text("Choose genres", size=24, color=ft.colors.BLUE_200),
+                ft.Text("Choose genres you want", size=24, color=ft.colors.BLUE_200),
                 list_of_genres,
+                ft.Text(
+                    "Choose genres you don't want", size=24, color=ft.colors.BLUE_200
+                ),
+                list_of_unwanted_genres,
                 result_film,
                 ft.ElevatedButton(
                     content=ft.Text("Find movie", size=40, color=ft.colors.BLUE_200),

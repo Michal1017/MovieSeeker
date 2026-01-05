@@ -11,3 +11,4 @@ class MoviesFilters:
     genres: list | None = None
     min_rating: ft.TextField | None = None
     max_rating: ft.TextField | None = None
+    unwanted_genres: list | None = None

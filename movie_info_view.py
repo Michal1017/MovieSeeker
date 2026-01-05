@@ -113,6 +113,7 @@ class MovieInfoPage:
         return ft.Column(
             [
                 movie_info_result,
+                ft.Text("Similar Movies", size=30, color=ft.colors.BLUE_700),
                 ft.Row(
                     [self.build_similar_movies_tab(page, movie_id)],
                     alignment=ft.MainAxisAlignment.CENTER,
